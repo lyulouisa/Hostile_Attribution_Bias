@@ -1,14 +1,14 @@
 %% Run Classification analysis by single channel
 clear all
 
-addpath(genpath('../../2_scripts/9_help_scripts'));
+addpath(genpath('../2_scripts/9_help_scripts'));
 
 %% Specify pre-processing parameters and file paths
 classification = 1;
 permutation = 1;
 
-behavDir = '../../1_data/1_behav';
-dataDir = strcat('../../1_data/2_fNIRs_preprocessed/');
+behavDir = '../1_data/1_behav';
+dataDir = strcat('../1_data/2_fNIRs_preprocessed/');
 
 load(strcat(dataDir, '/', 'all_oxy.mat'))
 load(strcat(dataDir, '/', 'sublst.mat'))
@@ -18,7 +18,7 @@ nChannel = 20;
 %% Classification analysis
 if classification
     % Read behavioral data
-    load(fullfile('../../1_data/1_behav/mean_scores.mat'));
+    load(fullfile('../1_data/1_behav/mean_scores.mat'));
     host_scores = mean_scores(:,4);
     
     host_subj = host_scores > median(host_scores);

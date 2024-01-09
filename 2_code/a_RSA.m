@@ -6,8 +6,8 @@ run_rsa = 1;
 RSA_Type = 'NN'; % NN = Nearest Neighbor, AnnaK
 NeuralDistance = 'corr'; % corr, ED
 
-behavDir = '../../1_data/1_behav';
-dataDir = strcat('../../1_data/2_fNIRs_preprocessed/');
+behavDir = '../1_data/1_behav';
+dataDir = strcat('../1_data/2_fNIRs_preprocessed/');
 
 load(strcat(dataDir, '/', 'all_oxy.mat'))
 load(strcat(dataDir, '/', 'sublst.mat'))
@@ -20,7 +20,7 @@ if run_rsa
     channel_r = NaN(20,1);
     
     % Create behavioral distance matrix
-    load(fullfile('../../1_data/1_behav/mean_scores.mat'));
+    load(fullfile('../1_data/1_behav/mean_scores.mat'));
     host_scores = mean_scores(:,4);
     
     behav_matrix = NaN(length(subDirs),length(subDirs));

@@ -19,7 +19,7 @@ library(readxl)
 
 During-task behavioral ratings
 ```{r}
-AllData <- read.csv("../../1_data/1_behav/AllData.csv")
+AllData <- read.csv("../1_data/1_behav/AllData.csv")
 ```
 
 ```{r}
@@ -47,7 +47,7 @@ blameData <- blameData %>% arrange(desc(blame_sum))
 
 Attributional Complexity (AC) questionnaire
 ```{r}
-pre_ac <- read_excel('../../1_data/1_behav/HAB_pre_survey.xlsx') %>% dplyr::select(ID, AC_1:AC_28)
+pre_ac <- read_excel('../1_data/1_behav/HAB_pre_survey.xlsx') %>% dplyr::select(ID, AC_1:AC_28)
 pre_ac <- pre_ac[-c(1,2),]
 
 pre_ac$ID = substr(pre_ac$ID, 3, 4)

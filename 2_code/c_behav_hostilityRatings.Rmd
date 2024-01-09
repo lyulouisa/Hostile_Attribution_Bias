@@ -3,8 +3,8 @@ title: "Hostility Ratings differ between story types"
 author: "Louisa"
 date: '2022-06-17'
 output:
-  html_document: default
   pdf_document: default
+  html_document: default
 ---
 
 ```{r}
@@ -19,7 +19,7 @@ sem <-
 ```
 
 ```{r}
-AllData <- read.csv("../../1_data/1_behav/AllData.csv")
+AllData <- read.csv("../1_data/1_behav/AllData.csv")
 ```
 
 ```{r}
