@@ -15,9 +15,6 @@ https://www.biorxiv.org/content/10.1101/2023.07.11.548407v1
 
 **Code**      
 * RSA and synchrony-based classification: 
-https://github.com/lyulouisa/HostileAttributionBias/tree/main/2_code/analysis
-
-* Figures:             
-https://github.com/lyulouisa/HostileAttributionBias/tree/main/2_code/plot
+https://github.com/lyulouisa/HostileAttributionBias/tree/main/2_code
 
 
