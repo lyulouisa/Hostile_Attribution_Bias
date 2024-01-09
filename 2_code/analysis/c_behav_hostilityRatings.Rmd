@@ -1,0 +1,118 @@
+---
+title: "Hostility Ratings differ between story types"
+author: "Louisa"
+date: '2022-06-17'
+output:
+  html_document: default
+  pdf_document: default
+---
+
+```{r}
+rm(list=ls())
+library(tidyverse)
+library(fs)
+library(ggplot2)
+library(dplyr)
+
+sem <- 
+  function(x) {sd(x,na.rm = T) / sqrt(length(x))}
+```
+
+```{r}
+AllData <- read.csv("../../1_data/1_behav/AllData.csv")
+```
+
+```{r}
+AllData = separate(AllData,audio,sep = '/', into = c('temp','scenario'))
+AllData = select(AllData,-temp)
+AllData$subID = factor(AllData$subID)
+
+# Add narrative 
+hostile_stories = c('4.wav', '8.wav', '11.wav', '12.wav', '16.wav', '17.wav', '21.wav');
+ambiguous_stories = c('3.wav', '5.wav', '6.wav', '9.wav', '14.wav', '18.wav', '20.wav');
+benign_stories = c('1.wav', '2.wav', '7.wav', '10.wav', '13.wav', '15.wav', '19.wav')
+
+
+AllData$category = ifelse(AllData$scenario %in% hostile_stories, 'hostile', 
+                  ifelse(AllData$scenario %in% ambiguous_stories, 'ambiguous',
+                     ifelse(AllData$scenario %in% benign_stories, 'benign','NA'))) 
+
+AllData = gather(AllData, rating_type, rating, angry, intend, hostile, blame)
+```
+
+
+```{r}
+subjData = AllData %>%
+  group_by(subID,category,rating_type) %>%
+  dplyr::summarise(mean_rating = mean(rating))
+
+calculate_se <- function(data, category1, category2) {
+  filtered_data <- filter(data, category %in% c(category1, category2))
+  wide_data <- spread(filtered_data, category, mean_rating)
+  differences <- wide_data[[category1]] - wide_data[[category2]]
+  
+  se <- sd(differences) / sqrt(length(differences))
+  return(se)
+}
+
+## Do mean hostility ratings differ between story types
+this_category = filter(subjData, rating_type == 'hostile')
+
+# Hostile > Ambiguous
+calculate_se(this_category, "hostile", "ambiguous")
+t.test(mean_rating ~ category, filter(this_category, category != 'benign'), paired = TRUE, var.equal = TRUE)
+
+# Hostile > Benign
+calculate_se(this_category, "hostile", "benign")
+t.test(mean_rating ~ category, filter(this_category, category != 'ambiguous'), paired = TRUE, var.equal = TRUE)
+
+# Ambiguous > Benign
+calculate_se(this_category, "ambiguous", "benign")
+t.test(mean_rating ~ category, filter(this_category, category != 'hostile'), paired = TRUE, var.equal = TRUE)
+
+
+## Do mean intention ratings differ between story types
+this_category = filter(subjData, rating_type == 'intend')
+
+# Hostile > Ambiguous
+calculate_se(this_category, "hostile", "ambiguous")
+t.test(mean_rating ~ category, filter(this_category, category != 'benign'), paired = TRUE, var.equal = TRUE)
+
+# Hostile > Benign
+calculate_se(this_category, "hostile", "benign")
+t.test(mean_rating ~ category, filter(this_category, category != 'ambiguous'), paired = TRUE, var.equal = TRUE)
+
+# Ambiguous > Benign
+calculate_se(this_category, "ambiguous", "benign")
+t.test(mean_rating ~ category, filter(this_category, category != 'hostile'), paired = TRUE, var.equal = TRUE)
+
+##  Do mean anger ratings differ between story types
+this_category = filter(subjData, rating_type == 'angry')
+
+# Hostile > Ambiguous
+calculate_se(this_category, "hostile", "ambiguous")
+t.test(mean_rating ~ category, filter(this_category, category != 'benign'), paired = TRUE, var.equal = TRUE)
+
+# Hostile > Benign
+calculate_se(this_category, "hostile", "benign")
+t.test(mean_rating ~ category, filter(this_category, category != 'ambiguous'), paired = TRUE, var.equal = TRUE)
+
+# Ambiguous > Benign
+calculate_se(this_category, "ambiguous", "benign")
+t.test(mean_rating ~ category, filter(this_category, category != 'hostile'), paired = TRUE, var.equal = TRUE)
+
+##  Do mean blame ratings differ between story types
+this_category = filter(subjData, rating_type == 'blame')
+
+# Hostile > Ambiguous
+calculate_se(this_category, "hostile", "ambiguous")
+t.test(mean_rating ~ category, filter(this_category, category != 'benign'), paired = TRUE, var.equal = TRUE)
+
+# Hostile > Benign
+calculate_se(this_category, "hostile", "benign")
+t.test(mean_rating ~ category, filter(this_category, category != 'ambiguous'), paired = TRUE, var.equal = TRUE)
+
+# Ambiguous > Benign
+calculate_se(this_category, "ambiguous", "benign")
+t.test(mean_rating ~ category, filter(this_category, category != 'hostile'), paired = TRUE, var.equal = TRUE)
+```

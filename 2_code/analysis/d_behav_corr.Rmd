@@ -1,0 +1,146 @@
+---
+title: "Behavioral ratings correlation"
+author: "Louisa"
+date: '2023-03-31'
+output:
+  html_document: default
+  pdf_document: default
+---
+
+```{r}
+rm(list=ls())
+
+library(tidyverse)
+library(dplyr)
+library(fs)
+library(ggplot2)
+library(readxl)
+```
+
+During-task behavioral ratings
+```{r}
+AllData <- read.csv("../../1_data/1_behav/AllData.csv")
+```
+
+```{r}
+#Find sum of hostility and intention
+hosData = AllData %>% 
+  group_by(subID) %>%
+     dplyr::summarise(hos_sum = mean(hostile))
+hosData <- hosData %>% arrange(desc(hos_sum))
+
+intendData = AllData %>%
+  group_by(subID) %>%
+     dplyr::summarise(intend_sum = sum(intend))
+intendData <- intendData %>% arrange(desc(intend_sum))
+
+angerData = AllData %>%
+  group_by(subID) %>%
+     dplyr::summarise(anger_sum = sum(angry))
+angerData <- angerData %>% arrange(desc(anger_sum))
+
+blameData = AllData %>%
+  group_by(subID) %>%
+     dplyr::summarise(blame_sum = sum(blame))
+blameData <- blameData %>% arrange(desc(blame_sum))
+```
+
+Attributional Complexity (AC) questionnaire
+```{r}
+pre_ac <- read_excel('../../1_data/1_behav/HAB_pre_survey.xlsx') %>% dplyr::select(ID, AC_1:AC_28)
+pre_ac <- pre_ac[-c(1,2),]
+
+pre_ac$ID = substr(pre_ac$ID, 3, 4)
+
+pre_ac <- mutate_all(pre_ac, function(x) as.numeric(as.character(x)))
+
+#Deal with the reverse coded items
+pre_ac['AC_1'] <- 8 - pre_ac['AC_1']
+pre_ac['AC_2'] <- 8 - pre_ac['AC_2']
+pre_ac['AC_5'] <- 8 - pre_ac['AC_5']
+pre_ac['AC_6'] <- 8 - pre_ac['AC_6']
+pre_ac['AC_8'] <- 8 - pre_ac['AC_8']
+pre_ac['AC_11'] <- 8 - pre_ac['AC_11']
+pre_ac['AC_13'] <- 8 - pre_ac['AC_13']
+pre_ac['AC_16'] <- 8 - pre_ac['AC_16']
+pre_ac['AC_17'] <- 8 - pre_ac['AC_17']
+pre_ac['AC_18'] <- 8 - pre_ac['AC_18']
+pre_ac['AC_22'] <- 8 - pre_ac['AC_22']
+pre_ac['AC_23'] <- 8 - pre_ac['AC_23']
+pre_ac['AC_26'] <- 8 - pre_ac['AC_26']
+pre_ac['AC_28'] <- 8 - pre_ac['AC_28']
+
+#Find the hostile score for each(sum the two hostile attribution choices for each story)
+#hos_score higher, more HAB
+pre_ac$pre_ac_score = rowMeans(pre_ac[,2:length(pre_ac)])
+```
+
+combine everything to the same dataframe
+```{r}
+#Combining everything into a single dataframe  
+during_hos_score <- hosData %>%
+  rename(
+    ID = subID
+  )
+
+during_anger_score <- angerData %>%
+  rename(
+    ID = subID
+  )
+
+during_blame_score <- blameData %>%
+  rename(
+    ID = subID
+  )
+
+during_intend_score <- intendData %>%
+  rename(
+    ID = subID
+  )
+
+during_hos_score$ID <- as.numeric(during_hos_score$ID)
+during_anger_score$ID <- as.numeric(during_anger_score$ID)
+during_blame_score$ID <- as.numeric(during_blame_score$ID)
+during_intend_score$ID <- as.numeric(during_intend_score$ID)
+
+pre_ac <- pre_ac %>%
+  dplyr::select('ID', 'pre_ac_score')
+
+AllProcessed <- merge(during_hos_score, during_anger_score, by = c('ID'))
+AllProcessed <- merge(AllProcessed, during_blame_score, by = c('ID'))
+AllProcessed <- merge(AllProcessed, during_intend_score, by = c('ID'))
+AllProcessed <- merge(AllProcessed, pre_ac, by = c('ID'))
+```
+
+Find correlations
+```{r}
+cor.test(AllProcessed$hos_sum,AllProcessed$intend_sum)
+cor.test(AllProcessed$hos_sum,AllProcessed$anger_sum)
+cor.test(AllProcessed$hos_sum,AllProcessed$blame_sum)
+```
+
+```{r}
+cor.test(AllProcessed$hos_sum,AllProcessed$pre_ac_score)
+```
+
+```{r fig.width = 4.2, fig.height = 4}
+ggplot(data=AllProcessed,
+       mapping = aes(x = pre_ac_score,y = hos_sum))+
+  geom_point() +
+  geom_smooth(method='lm',formula=y~x, colour="black", se = FALSE) +
+  theme(legend.position="none",
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        panel.background = element_blank(),
+        axis.text.x  = element_text(size=13,color="black"),
+        axis.text.y  = element_text(size=13,color="black"),
+        axis.line = element_line(colour = "black"),
+        strip.background = element_blank(),
+        strip.text.x = element_text(face = "bold"),
+                plot.title = element_text(face = "plain", size = (15))) +
+  
+  ylab("Hostile Attribution Bias Score") + xlab("Attributional Complexity") +
+  coord_cartesian(xlim = c(3.8,7.2))
+
+```
+
